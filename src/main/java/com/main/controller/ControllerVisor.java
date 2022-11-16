@@ -1,15 +1,17 @@
 package com.main.controller;
 
+import com.main.model.BdManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import com.main.model.Cuenta;
 
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,13 +60,25 @@ public class ControllerVisor implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        listaCuentas.add(new Cuenta("1", "AA", "29/01/2020", 123));
-        listaCuentas.add(new Cuenta("2", "BB", "30/05/2021", 444));
-        listaCuentas.add(new Cuenta("3", "CC", "03/03/2020", 223));
-        listaCuentas.add(new Cuenta("4", "DD", "06/07/2022", 646.666));
-        listaCuentas.add(new Cuenta("5", "EE", "15/11/2019", 5474));
-        listaCuentas.add(new Cuenta("6", "FF", "15/11/2019", 5474));
+        BdManager bdManager = new BdManager();
+        try {
+            Statement statament = bdManager.abrirBD();
+            String consulta = "SELECT * FROM numCuenta";
+            ResultSet resultSet = statament.executeQuery(consulta);
+            while(resultSet.next()) {
+                int numero = resultSet.getInt("numero");
+                String titular = resultSet.getString("titular");
+                String nacionalidad = resultSet.getString("nacionalidad");
+                String fecha = resultSet.getString("fecha");
+                Double saldo = resultSet.getDouble("saldo");
 
+                listaCuentas.add(new Cuenta(numero, titular, nacionalidad, fecha, saldo));
+            }
+        } catch (Exception e) {
+            System.out.println("No hay datos");
+        }
+
+    
         tfNum.setText(listaCuentas.get(0).getNumCuenta());
         tfTitular.setText(listaCuentas.get(0).getTitular());
         tfFecha.setText(formato.format(listaCuentas.get(0).getFechaApertura()));
@@ -208,7 +222,8 @@ public class ControllerVisor implements Initializable {
         // Si todos los campos están escritos correctamente y no existe una cuenta con ese número se añadirá a la lista
         if(!cuentaExiste && !campoVacio) {
 
-                listaCuentas.add(new Cuenta(String.valueOf(numCuentaNueva), tfTitular.getText()
+            int numero = 0;
+            listaCuentas.add(new Cuenta(numero, String.valueOf(numCuentaNueva), tfTitular.getText()
                         , formato.format(fechaCuentaNueva), saldoCuentaNueva));
             backFromInsert();
 

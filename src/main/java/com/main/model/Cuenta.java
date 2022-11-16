@@ -11,11 +11,11 @@ public class Cuenta {
     private double saldo;
     // String nacionalidad;
 
-    public Cuenta(String numCuenta, String titular, String fechaApertura, double saldo) {
+    public Cuenta(int numero, String numCuenta, String titular, String fechaApertura, double saldo) {
         this.numCuenta = numCuenta;
         this.titular = titular;
-        SimpleDateFormat format =  new SimpleDateFormat("dd/MM/yyyy");
-        try{
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        try {
             this.fechaApertura = format.parse(fechaApertura);
         } catch (ParseException e) {
             throw new RuntimeException(e);
@@ -53,5 +53,14 @@ public class Cuenta {
 
     public void setSaldo(double saldo) {
         this.saldo = saldo;
+    }
+
+    public String toString() {
+        return
+                "numero='" + getNumCuenta() + '\'' +
+                        ", titular='" + getTitular() + '\'' +
+                        ", fecha=" + getFechaApertura() +
+                        ", saldo=" + getSaldo() + "\n" ;
+                        // ", nacionalidad=" + getNacionalidad() + "\n";
     }
 }
