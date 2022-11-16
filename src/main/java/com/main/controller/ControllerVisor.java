@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
  */
 public class ControllerVisor implements Initializable {
 
-    public MenuItem menuItem2;
+    // public MenuItem menuItem2;
     @FXML
     private Button bDerecha;
 
@@ -47,7 +47,7 @@ public class ControllerVisor implements Initializable {
     private Label lTitulo;
 
     //Lista de cuentas de la aplicación
-    private static final ArrayList<Cuenta> listaCuentas = new ArrayList<>();
+    ArrayList<Cuenta> listaCuentas = new ArrayList<>();
     private SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
     private static final String NUEVA = "Nueva";
     private static final String WRONG_STYLE = "-fx-background-color: red";
@@ -61,7 +61,7 @@ public class ControllerVisor implements Initializable {
         listaCuentas.add(new Cuenta("1", "AA", "29/01/2020", 123));
         listaCuentas.add(new Cuenta("2", "BB", "30/05/2021", 444));
         listaCuentas.add(new Cuenta("3", "CC", "03/03/2020", 223));
-        listaCuentas.add(new Cuenta("4", "DD", "06/07/2022", 646.6));
+        listaCuentas.add(new Cuenta("4", "DD", "06/07/2022", 646.666));
         listaCuentas.add(new Cuenta("5", "EE", "15/11/2019", 5474));
         listaCuentas.add(new Cuenta("6", "FF", "15/11/2019", 5474));
 
