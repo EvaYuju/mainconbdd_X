@@ -6,17 +6,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import com.main.model.Cuenta;
 
 import java.net.URL;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
+
+import java.io.InputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 /**
  * Clase principal que controla los elementos del visor
  */
@@ -45,6 +50,10 @@ public class ControllerVisor implements Initializable {
 
     @FXML
     private TextField tfTitular;
+
+    @FXML
+    private TextField tfNacionalidad;
+
     @FXML
     private Label lTitulo;
 
@@ -60,29 +69,24 @@ public class ControllerVisor implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
         BdManager bdManager = new BdManager();
         try {
             Statement statament = bdManager.abrirBD();
-            String consulta = "SELECT * FROM numCuenta";
+            String consulta = "SELECT * FROM tablavisor";
             ResultSet resultSet = statament.executeQuery(consulta);
             while(resultSet.next()) {
-                int numero = resultSet.getInt("numero");
+                String numCuenta = resultSet.getString("numCuenta");
                 String titular = resultSet.getString("titular");
-                String nacionalidad = resultSet.getString("nacionalidad");
-                String fecha = resultSet.getString("fecha");
+                String fechaApertura = resultSet.getString("fechaApertura");
                 Double saldo = resultSet.getDouble("saldo");
+                String nacionalidad = resultSet.getString("nacionalidad");
 
-                listaCuentas.add(new Cuenta(numero, titular, nacionalidad, fecha, saldo));
+                listaCuentas.add(new Cuenta(numCuenta, titular, fechaApertura, saldo, nacionalidad));
             }
         } catch (Exception e) {
             System.out.println("No hay datos");
         }
-
-    
-        tfNum.setText(listaCuentas.get(0).getNumCuenta());
-        tfTitular.setText(listaCuentas.get(0).getTitular());
-        tfFecha.setText(formato.format(listaCuentas.get(0).getFechaApertura()));
-        tfSaldo.setText(String.valueOf(listaCuentas.get(0).getSaldo()));
 
     }
     /**
@@ -109,6 +113,7 @@ public class ControllerVisor implements Initializable {
                 tfTitular.setText(listaCuentas.get(pos + 1).getTitular());
                 tfFecha.setText(formato.format(listaCuentas.get(pos + 1).getFechaApertura()));
                 tfSaldo.setText(String.valueOf(listaCuentas.get(pos + 1).getSaldo()));
+                tfNacionalidad.setText(String.valueOf(listaCuentas.get(pos + 1).getNacionalidad()));
 
             }
             if (pos == listaCuentas.size() - 1) {
@@ -117,6 +122,7 @@ public class ControllerVisor implements Initializable {
                 tfTitular.setText("");
                 tfFecha.setText("");
                 tfSaldo.setText("");
+                tfNacionalidad.setText("");
                 bDerecha.setVisible(false);
                 bIzquierda.setVisible(false);
                 bAceptar.setVisible(true);
@@ -148,6 +154,7 @@ public class ControllerVisor implements Initializable {
                 tfTitular.setText(listaCuentas.get(pos - 1).getTitular());
                 tfFecha.setText(formato.format(listaCuentas.get(pos - 1).getFechaApertura()));
                 tfSaldo.setText(String.valueOf(listaCuentas.get(pos - 1).getSaldo()));
+                tfNacionalidad.setText(String.valueOf(listaCuentas.get(pos - 1).getNacionalidad()));
             }
         }
 
@@ -193,6 +200,12 @@ public class ControllerVisor implements Initializable {
         }else {
             tfSaldo.setStyle(null);
         }
+        if(tfNacionalidad.getText().equals("")){
+            tfNacionalidad.setStyle(WRONG_STYLE);
+            campoVacio = true;
+        }else {
+            tfNacionalidad.setStyle(null);
+        }
 
         try{
             numCuentaNueva = Integer.parseInt(tfNum.getText());
@@ -202,7 +215,6 @@ public class ControllerVisor implements Initializable {
             campoVacio = true;
         }
         Date fechaCuentaNueva = null;
-
         try{
             fechaCuentaNueva = formato.parse(tfFecha.getText());
             tfFecha.setStyle(null);
@@ -210,7 +222,6 @@ public class ControllerVisor implements Initializable {
             tfFecha.setStyle(WRONG_STYLE);
             campoVacio = true;
         }
-
         double saldoCuentaNueva = 0;
         try{
             saldoCuentaNueva = Double.parseDouble(tfSaldo.getText());
@@ -219,12 +230,11 @@ public class ControllerVisor implements Initializable {
             tfSaldo.setStyle(WRONG_STYLE);
             campoVacio = true;
         }
+
         // Si todos los campos están escritos correctamente y no existe una cuenta con ese número se añadirá a la lista
         if(!cuentaExiste && !campoVacio) {
 
-            int numero = 0;
-            listaCuentas.add(new Cuenta(numero, String.valueOf(numCuentaNueva), tfTitular.getText()
-                        , formato.format(fechaCuentaNueva), saldoCuentaNueva));
+            listaCuentas.add(new Cuenta(String.valueOf(numCuentaNueva), tfTitular.getText(), formato.format(fechaCuentaNueva), saldoCuentaNueva, tfNacionalidad.getText() ));
             backFromInsert();
 
         }
@@ -238,6 +248,7 @@ public class ControllerVisor implements Initializable {
         tfTitular.setStyle(null);
         tfSaldo.setStyle(null);
         tfFecha.setStyle(null);
+        tfNacionalidad.setStyle(null);
         bDerecha.setVisible(true);
         bIzquierda.setVisible(true);
         bAceptar.setVisible(false);
@@ -250,6 +261,7 @@ public class ControllerVisor implements Initializable {
         tfTitular.setText(listaCuentas.get(listaCuentas.size() - 1).getTitular());
         tfFecha.setText(formato.format(listaCuentas.get(listaCuentas.size() - 1).getFechaApertura()));
         tfSaldo.setText(String.valueOf(listaCuentas.get(listaCuentas.size() - 1).getSaldo()));
+        tfNacionalidad.setText(String.valueOf(listaCuentas.get(listaCuentas.size() - 1).getNacionalidad()));
     }
     /**
      * Función que controla cuando se pulsa el botón de cancelar en la pantalla de creación de cuenta
